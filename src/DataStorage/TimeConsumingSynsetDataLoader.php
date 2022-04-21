@@ -24,6 +24,10 @@ class TimeConsumingSynsetDataLoader implements SynsetDataLoaderInterface
 
 	public function findSynsetData(int $synsetOffset): ?string
 	{
+        if ($synsetOffset > $this->fileReader->getFileSize()) {
+            return null;
+        }
+
 		$block = $this->fileReader->readBlock($synsetOffset, $this->readBlockSize);
 		list($synsetData, $rest) = explode("\n", $block, 2) + [null, null];
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace AL\PhpWndb\Tests\Repositories;
 
+use AL\PhpWndb\Exceptions\InvalidStateException;
 use AL\PhpWndb\Exceptions\UnknownSynsetOffsetException;
 use AL\PhpWndb\Model\Synsets\SynsetInterface;
 use AL\PhpWndb\PartOfSpeechEnum;
@@ -20,6 +21,14 @@ class SynsetMultiRepositoryTest extends BaseTestAbstract
 
 		static::assertNotNull($synset);
 	}
+
+    public function testFindSynsetOutOfFile(): void
+    {
+        $repository = $this->createMultiRepository();
+        $synset = $repository->findSynset(3000000);
+
+        static::assertNull($synset);
+    }
 
 	public function testFindSynsetUnknown(): void
 	{
@@ -143,6 +152,9 @@ class SynsetMultiRepositoryTest extends BaseTestAbstract
 			throw new UnknownSynsetOffsetException($synsetOffset);
 		});
 		$repository->method('findSynset')->willReturnCallback(function ($synsetOffset) use ($synset) {
+                if ($synsetOffset > 2778475) {
+                    return null;
+                }
 			return $synsetOffset > 0 ? $synset : null;
 		});
 
